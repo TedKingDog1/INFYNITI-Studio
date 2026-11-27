@@ -3,3 +3,5 @@
 .bp-node header.literals{background:#3e4b58}.bp-node header.math{background:#3c4659}.bp-node header.logic{background:#3d4c43}.bp-value input[type=checkbox]{width:15px;height:15px;accent-color:#d39a63}.bp-diagnostics span{max-width:75%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 .bp-input-pin{display:flex;align-items:center;min-width:0;gap:3px}.bp-input-pin>button{flex:0 0 auto}.bp-pin-value{min-width:0;width:62px!important;height:18px;padding:1px 3px!important;font-size:9px!important;background:#151a1d;border:1px solid #505b60;color:#e0e5e6;border-radius:2px}.bp-pin-value[type=checkbox]{width:14px!important;height:14px;accent-color:#d39a63}.bp-pinrow{min-height:27px;height:auto;padding:2px 0}
+
+.bp-output-preview{display:inline-block;margin-left:5px;color:#9fc6a7;font-size:10px;font-weight:600;pointer-events:none}
