@@ -20,6 +20,8 @@ export interface SceneDefinition {
   objects: SceneObject[];
 }
 
+import type { BlueprintGraph } from '../domain/project-model';
+
 export interface StudioProject {
   format: 'infyniti-project' | 'blacksite-project';
   version: 1;
@@ -28,6 +30,7 @@ export interface StudioProject {
   updatedAt: string;
   activeSceneId: string;
   scenes: SceneDefinition[];
+  blueprintGraphs?: BlueprintGraph[];
 }
 
 export function createId(): string {
@@ -59,6 +62,7 @@ export function createProject(name = 'Untitled Project'): StudioProject {
     format: 'infyniti-project', version: 1, id: createId(), name, updatedAt: new Date().toISOString(),
     activeSceneId: sceneId,
     scenes: [{ id: sceneId, name: 'Main Scene', objects: [floor, block, block2] }],
+    blueprintGraphs: [],
   };
 }
 
@@ -76,5 +80,7 @@ export function validateProject(value: unknown): StudioProject {
       }
     }
   }
-  return structuredClone(project as StudioProject);
+  const normalized = structuredClone(project as StudioProject);
+  normalized.blueprintGraphs ??= [];
+  return normalized;
 }

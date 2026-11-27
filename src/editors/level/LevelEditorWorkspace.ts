@@ -4,7 +4,9 @@ import { IndexedDbProjectStorage } from '../../core/storage';
 import { Viewport } from '../../editor/viewport';
 
 /** Level Editor workspace: scene authoring, viewport, hierarchy, and project interactions. */
-export function mountLevelEditorWorkspace(app: HTMLDivElement): void {
+export interface LevelEditorBridge { getProject(): StudioProject; saveProject(quiet?: boolean): Promise<void>; }
+
+export function mountLevelEditorWorkspace(app: HTMLDivElement): LevelEditorBridge {
 
 let project = createProject();
 let selectedId: string | null = project.scenes[0].objects[1]?.id ?? null;
@@ -265,6 +267,7 @@ history.subscribe(() => {
 window.addEventListener('keydown', (event) => {
   const target = event.target as HTMLElement;
   if (target.matches('input,textarea,select') || target.isContentEditable) return;
+  if (document.querySelector<HTMLElement>('.workspace')?.hidden) return;
   const mod = event.ctrlKey || event.metaKey;
   if (mod && event.key.toLowerCase() === 's') { event.preventDefault(); void saveProject(); }
   else if (mod && event.key.toLowerCase() === 'z') { event.preventDefault(); if (event.shiftKey) { if (history.canRedo) { history.redo(); markChanged(); } } else if (history.canUndo) { history.undo(); markChanged(); } }
@@ -304,4 +307,5 @@ void (async () => {
   }
 })();
 
+  return { getProject: () => project, saveProject };
 }

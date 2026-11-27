@@ -80,6 +80,13 @@ Target layers:
 - Optimize loading, memory use, rendering, and large-project responsiveness.
 - Add diagnostics, recovery, documentation, and regression coverage.
 
+### Blueprint editor first vertical slice
+
+- Registered Blueprint as a navigable workspace alongside the Level Editor.
+- Added backward-compatible `blueprintGraphs` project persistence.
+- Added an Unreal-style canvas with Begin Play, Branch, and Print String nodes, typed execution/data pins, compatible connections, node search, movement, selection, deletion, and a details panel.
+- Graph edits save through the shared IndexedDB project save path. Compilation and execution are future work.
+
 ### Sprint 1 foundation delivered in this branch
 
 - Added `StudioApplication` as the composition root for workspace registration, shared editor context, and shared command routing.

@@ -10,6 +10,7 @@ export class StudioApplication {
   readonly editorContext: EditorContext;
 
   constructor(project: Readonly<StudioProject>, selectedObjectIds: readonly string[] = []) {
+    this.workspaces.register({ id: 'blueprint', label: 'Blueprint', description: 'Create visual gameplay logic with connected nodes.' });
     this.workspaces.register({
       id: 'level-editor',
       label: 'Level Editor',

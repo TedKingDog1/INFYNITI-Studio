@@ -95,8 +95,12 @@ Avoid circular imports and avoid making main.ts the home of product logic. The a
 - Test type contracts, serialization/migrations, command behavior, and browser workflows.
 - Do not mark a feature complete until its actual workflow has been exercised.
 
+## Blueprint workspace implementation
+
+Blueprint is mounted as a separate workspace. Graph documents are stored in the shared `StudioProject.blueprintGraphs` collection; validation supplies an empty collection for older version-1 projects. The first canvas supports node creation/search, movement, selection, deletion, typed pin connections, and persistence. Compilation and execution are future work. The Level Editor remains mounted and is hidden rather than destroyed when switching workspaces.
+
 ## Initial repository reality
 
-The current repository is an early TypeScript/Vite/Three.js prototype. It has a scene viewport, primitive creation, a flat Outliner, a simple Inspector, command history, IndexedDB project storage, a workspace registry, shared editor context, a shared command bus, and serializable project contracts for assets, Blueprint graphs, and UI documents. Static shell markup is separated from the entry point, while most Level Editor controller logic remains in `src/main.ts`. The Level Editor controller is mounted from `src/editors/level/LevelEditorWorkspace.ts`, while `src/main.ts` is a small bootstrap. Blueprint graph domain types exist, but graph persistence, the actual Blueprint canvas, asset pipeline, UI Designer, and game runtime are still future implementation work.
+The current repository is an early TypeScript/Vite/Three.js prototype. It has a scene viewport, primitive creation, a flat Outliner, a simple Inspector, command history, IndexedDB project storage, a workspace registry, shared editor context, a shared command bus, and serializable project contracts for assets, Blueprint graphs, and UI documents. Static shell markup is separated from the entry point, while most Level Editor controller logic remains in `src/main.ts`. The Level Editor controller is mounted from `src/editors/level/LevelEditorWorkspace.ts`, while `src/main.ts` is a small bootstrap. Blueprint graph domain types and backward-compatible project persistence exist alongside a first interactive canvas. Compilation/execution, asset pipeline, UI Designer, and game runtime remain future implementation work.
 
 The next engineering work is to establish the IDE/project contracts and modular boundaries while preserving the working prototype. The existing Level Editor becomes the first workspace, not the definition of the whole product.
