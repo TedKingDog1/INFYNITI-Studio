@@ -1,69 +1,22 @@
 import './style.css';
-import { CommandHistory } from './core/history';
+import { mountAppShell } from './ide/app-shell';
+import { StudioApplication } from './ide/application';
 import { createId, createObject, createProject, validateProject, type PrimitiveKind, type SceneObject, type StudioProject } from './core/types';
 import { IndexedDbProjectStorage } from './core/storage';
 import { Viewport } from './editor/viewport';
-import { EditorContext } from './ide/editor-context';
-import { WorkspaceRegistry } from './ide/workspaces';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
-app.innerHTML = `
-  <header class="topbar">
-    <a class="brand" href="#" aria-label="INFYNITI Studio home"><span class="brand-mark">I</span><span>INFYNITI <b>STUDIO</b></span></a>
-    <span class="top-divider"></span>
-    <div class="file-actions"><button class="icon-button" data-action="new" title="New project">＋ <span>New</span></button><button class="icon-button" data-action="open" title="Open project">▱ <span>Open</span></button><button class="icon-button" data-action="save" title="Save project">▣ <span>Save</span></button></div>
-    <span class="top-divider"></span>
-    <div class="history-actions"><button class="icon-button" data-action="undo" title="Undo (Ctrl+Z)">↶</button><button class="icon-button" data-action="redo" title="Redo (Ctrl+Shift+Z)">↷</button></div>
-    <span class="top-divider"></span>
-    <div class="tool-actions"><button class="tool-button active" data-tool="translate" title="Move (W)">✣</button><button class="tool-button" data-tool="rotate" title="Rotate (E)">⟳</button><button class="tool-button" data-tool="scale" title="Scale (R)">⤢</button></div>
-    <div class="toolbar-spacer"></div>
-    <div class="snap-controls"><span>SNAP</span><select id="snap"><option value="0">Off</option><option value="0.25">0.25 m</option><option value="0.5">0.5 m</option><option value="1" selected>1 m</option></select><button class="icon-button compact" data-action="camera" title="Toggle perspective / orthographic">Perspective</button></div>
-    <button class="play-button" disabled title="Play mode arrives in Milestone 4">▶ <span>Play</span></button>
-    <button class="icon-button settings-button" data-action="settings" title="Project settings">⚙</button>
-  </header>
-  <div class="projectbar"><div><span class="crumb">PROJECT</span><span id="project-name">Untitled Project</span><span class="save-dot" id="save-state">●</span></div><div class="scene-crumb"><span class="crumb">SCENE</span><span id="scene-name">Main Scene</span><span class="scene-dot"></span></div><div class="workspace-crumb"><span class="crumb">WORKSPACE</span><span id="workspace-name">Level Editor</span></div><div class="projectbar-right"><button class="project-export" data-action="export">EXPORT JSON</button> LOCAL PROJECT <span class="sync-icon">◈</span></div></div>
-  <main class="workspace">
-    <aside class="panel outliner-panel">
-      <div class="panel-title"><div><span class="panel-glyph">☷</span> WORLD OUTLINER</div><button class="subtle-button" data-action="add-menu" title="Add object">＋</button></div>
-      <div class="outliner-tools"><span>SCENE HIERARCHY</span><button data-action="expand" title="Expand all">⌄</button></div>
-      <div id="outliner" class="outliner-list"></div>
-      <div class="panel-footer"><span class="status-dot"></span><span id="object-count">0 OBJECTS</span></div>
-    </aside>
-    <div class="splitter" data-split="left" title="Drag to resize"></div>
-    <section class="center-column">
-      <div class="viewport-wrap">
-        <div class="viewport-toolbar"><div class="viewport-tabs"><button class="view-tab active">SCENE VIEW</button><button class="view-tab">GAME VIEW <i>SOON</i></button></div><div class="view-options"><button class="view-chip" data-action="grid">▦ <span>Grid</span></button><span class="view-separator"></span><span class="camera-label" id="camera-label">PERSPECTIVE</span><button class="view-chip" data-action="focus">◎ <span>Focus</span></button></div></div>
-        <div id="viewport" class="viewport"></div>
-        <div class="viewport-hint"><kbd>ALT</kbd> + <span>Drag to orbit</span><kbd>MMB</kbd> <span>Pan</span><kbd>Scroll</kbd> <span>Zoom</span></div>
-        <div class="axis-label axis-x">X</div><div class="axis-label axis-y">Y</div><div class="axis-label axis-z">Z</div>
-        <div class="view-cube"><span>TOP</span><div class="cube">◆</div><small>WORLD</small></div>
-        <div class="transform-readout" id="transform-readout">WORLD&nbsp; / &nbsp;METERS</div>
-      </div>
-      <div class="splitter horizontal" data-split="bottom" title="Drag to resize"></div>
-      <section class="bottom-panel">
-        <div class="bottom-head"><div class="bottom-tabs"><button class="bottom-tab active">CREATE</button><button class="bottom-tab">CONSOLE <i>0</i></button></div><span class="bottom-note">QUICK ADD · SELECT TO PLACE AT ORIGIN</span></div>
-        <div class="primitive-list"><button class="primitive-card" data-create="box"><span class="primitive-icon cube-icon">◇</span><span><b>Cube</b><small>BOX MESH</small></span><kbd>＋</kbd></button><button class="primitive-card" data-create="sphere"><span class="primitive-icon sphere-icon">◉</span><span><b>Sphere</b><small>SPHERE MESH</small></span><kbd>＋</kbd></button><button class="primitive-card" data-create="cylinder"><span class="primitive-icon cylinder-icon">⬭</span><span><b>Cylinder</b><small>CYLINDER MESH</small></span><kbd>＋</kbd></button><button class="primitive-card" data-create="plane"><span class="primitive-icon plane-icon">▱</span><span><b>Plane</b><small>PLANE MESH</small></span><kbd>＋</kbd></button></div>
-      </section>
-    </section>
-    <div class="splitter" data-split="right" title="Drag to resize"></div>
-    <aside class="panel inspector-panel">
-      <div class="panel-title"><div><span class="panel-glyph">◫</span> INSPECTOR</div><button class="subtle-button" title="Inspector options">···</button></div>
-      <div id="inspector" class="inspector-content"></div>
-    </aside>
-  </main>
-  <footer class="statusbar"><div><span class="status-dot"></span><span>READY</span><span class="status-divider">|</span><span id="status-message">All changes saved locally</span></div><div><span>INFYNITI STUDIO <b>1.0.0</b></span><span class="status-divider">|</span><span>WEBGL</span><span class="status-divider">|</span><span id="viewport-size">— × —</span></div></footer>
-  <input id="project-file" type="file" accept="application/json,.json" hidden>
-  <div id="toast" class="toast" role="status"></div>
-`;
+mountAppShell(app);
 
-const workspaceRegistry = new WorkspaceRegistry();
-workspaceRegistry.register({ id: 'level-editor', label: 'Level Editor', description: 'Author and organize 3D scenes.' });
-const activeWorkspace = workspaceRegistry.get('level-editor')!;
-const storage = new IndexedDbProjectStorage();
-const history = new CommandHistory();
 let project = createProject();
 let selectedId: string | null = project.scenes[0].objects[1]?.id ?? null;
-const editorContext = new EditorContext({ activeWorkspaceId: activeWorkspace.id, activeSceneId: project.activeSceneId, selectedObjectIds: selectedId ? [selectedId] : [] });
+let selectedIds: string[] = selectedId ? [selectedId] : [];
+let lastOutlinerSelectionId: string | null = null;
+const studioApplication = new StudioApplication(project, selectedIds);
+const activeWorkspace = studioApplication.workspaces.get('level-editor')!;
+const editorContext = studioApplication.editorContext;
+const storage = new IndexedDbProjectStorage();
+const history = studioApplication.commands;
 let activeTool: 'translate' | 'rotate' | 'scale' = 'translate';
 let gridVisible = true;
 let autoSaveTimer = 0;
@@ -75,7 +28,7 @@ const outliner = document.querySelector<HTMLDivElement>('#outliner')!;
 const inspector = document.querySelector<HTMLDivElement>('#inspector')!;
 const viewportHost = document.querySelector<HTMLDivElement>('#viewport')!;
 const viewport = new Viewport(viewportHost, {
-  select(id) { selectedId = id; renderPanels(); },
+  select(id) { selectedId = id; selectedIds = id ? [id] : []; renderPanels(); },
   transformStart() { const obj = selection(); transformStart = obj ? snapshotTransform(obj) : null; },
   transformEnd(id, _before, after) {
     const obj = scene().objects.find((item) => item.id === id);
@@ -107,36 +60,45 @@ function objectChange(obj: SceneObject, label: string, mutate: (obj: SceneObject
 function addObject(kind: PrimitiveKind): void {
   const obj = createObject(kind);
   obj.name = `${obj.name} ${scene().objects.filter((item) => item.kind === kind).length + 1}`;
-  const oldSelection = selectedId;
-  history.execute({ label: `Create ${obj.name}`, execute: () => { scene().objects.push(obj); selectedId = obj.id; }, undo: () => { scene().objects = scene().objects.filter((item) => item.id !== obj.id); selectedId = oldSelection; } });
+  const oldSelection = [...selectedIds];
+  history.execute({ label: `Create ${obj.name}`, execute: () => { scene().objects.push(obj); selectedId = obj.id; selectedIds = [obj.id]; }, undo: () => { scene().objects = scene().objects.filter((item) => item.id !== obj.id); selectedIds = oldSelection; selectedId = oldSelection.at(-1) ?? null; } });
   markChanged(); renderPanels();
 }
 function deleteSelected(): void {
-  const obj = selection(); if (!obj || obj.locked) return;
-  const index = scene().objects.indexOf(obj); const oldSelection = selectedId;
-  history.execute({ label: `Delete ${obj.name}`, execute: () => { scene().objects.splice(scene().objects.indexOf(obj), 1); selectedId = null; }, undo: () => { scene().objects.splice(Math.min(index, scene().objects.length), 0, obj); selectedId = oldSelection; } });
+  const beforeObjects = [...scene().objects];
+  const selectedObjects = beforeObjects.filter((obj) => selectedIds.includes(obj.id) && !obj.locked);
+  if (!selectedObjects.length) return;
+  const oldSelection = [...selectedIds];
+  const remainingObjects = beforeObjects.filter((obj) => !selectedObjects.includes(obj));
+  const label = selectedObjects.length === 1 ? `Delete ${selectedObjects[0].name}` : `Delete ${selectedObjects.length} objects`;
+  history.execute({
+    label,
+    execute: () => { scene().objects = [...remainingObjects]; selectedIds = []; selectedId = null; },
+    undo: () => { scene().objects = [...beforeObjects]; selectedIds = oldSelection; selectedId = oldSelection.at(-1) ?? null; },
+  });
   markChanged(); renderPanels();
 }
 function duplicateSelected(): void {
   const obj = selection(); if (!obj) return;
   const clone = structuredClone(obj); clone.id = createId(); clone.name = `${obj.name} Copy`; clone.position[0] += 1;
-  const oldSelection = selectedId;
-  history.execute({ label: `Duplicate ${obj.name}`, execute: () => { scene().objects.splice(scene().objects.indexOf(obj) + 1, 0, clone); selectedId = clone.id; }, undo: () => { scene().objects = scene().objects.filter((item) => item.id !== clone.id); selectedId = oldSelection; } });
+  const oldSelection = [...selectedIds];
+  history.execute({ label: `Duplicate ${obj.name}`, execute: () => { scene().objects.splice(scene().objects.indexOf(obj) + 1, 0, clone); selectedId = clone.id; selectedIds = [clone.id]; }, undo: () => { scene().objects = scene().objects.filter((item) => item.id !== clone.id); selectedIds = oldSelection; selectedId = oldSelection.at(-1) ?? null; } });
   markChanged(); renderPanels();
 }
 function paintViewport(): void { viewport.sync(scene().objects); }
 function renderPanels(): void {
-  editorContext.update({ activeWorkspaceId: activeWorkspace.id, activeSceneId: project.activeSceneId, selectedObjectIds: selectedId ? [selectedId] : [] });
+  editorContext.update({ activeWorkspaceId: activeWorkspace.id, activeSceneId: project.activeSceneId, selectedObjectIds: selectedIds });
   paintViewport(); renderOutliner(); renderInspector();
 }
 function renderOutliner(): void {
   const objects = scene().objects;
   const icon: Record<PrimitiveKind, string> = { box: '◇', sphere: '◉', cylinder: '⬭', plane: '▱' };
-  outliner.innerHTML = objects.map((obj) => `<div class="outliner-row ${obj.id === selectedId ? 'selected' : ''} ${obj.visible ? '' : 'hidden-object'}" data-id="${escapeHtml(obj.id)}"><span class="tree-indent"></span><span class="tree-caret">›</span><span class="object-icon ${obj.kind}">${icon[obj.kind]}</span><span class="object-name" title="${escapeHtml(obj.name)}">${escapeHtml(obj.name)}</span><button class="row-action visibility ${obj.visible ? '' : 'off'}" data-action="visibility" data-id="${escapeHtml(obj.id)}" title="Toggle visibility">${obj.visible ? '◉' : '○'}</button><button class="row-action lock ${obj.locked ? 'on' : ''}" data-action="lock" data-id="${escapeHtml(obj.id)}" title="Toggle lock">${obj.locked ? '▣' : '⌑'}</button></div>`).join('') || '<div class="empty-state">No objects in this scene.</div>';
+  outliner.innerHTML = objects.map((obj) => `<div class="outliner-row ${selectedIds.includes(obj.id) ? 'selected' : ''} ${obj.visible ? '' : 'hidden-object'}" data-id="${escapeHtml(obj.id)}"><span class="tree-indent"></span><span class="tree-caret">›</span><span class="object-icon ${obj.kind}">${icon[obj.kind]}</span><span class="object-name" title="${escapeHtml(obj.name)}">${escapeHtml(obj.name)}</span><button class="row-action visibility ${obj.visible ? '' : 'off'}" data-action="visibility" data-id="${escapeHtml(obj.id)}" title="Toggle visibility">${obj.visible ? '◉' : '○'}</button><button class="row-action lock ${obj.locked ? 'on' : ''}" data-action="lock" data-id="${escapeHtml(obj.id)}" title="Toggle lock">${obj.locked ? '▣' : '⌑'}</button></div>`).join('') || '<div class="empty-state">No objects in this scene.</div>';
   document.querySelector('#object-count')!.textContent = `${objects.length} OBJECT${objects.length === 1 ? '' : 'S'}`;
 }
 function renderInspector(): void {
   const obj = selection();
+  if (selectedIds.length > 1) { inspector.innerHTML = `<div class="inspector-empty"><span>◫</span><b>${selectedIds.length} objects selected</b><p>Use the Outliner to adjust the selection. Transform editing for multiple objects is coming later.</p></div>`; return; }
   if (!obj) { inspector.innerHTML = '<div class="inspector-empty"><span>◫</span><b>No object selected</b><p>Select an object in the scene or outliner to inspect its properties.</p></div>'; return; }
   inspector.innerHTML = `<div class="object-heading"><div class="object-avatar ${obj.kind}">${obj.kind === 'box' ? '◇' : obj.kind === 'sphere' ? '◉' : obj.kind === 'cylinder' ? '⬭' : '▱'}</div><div><span class="object-type">${obj.kind.toUpperCase()} MESH</span><strong>${escapeHtml(obj.name)}</strong></div><button data-action="delete" class="delete-button" title="Delete object">⌫</button></div>
     <section class="inspector-section"><button class="section-heading" data-section="transform"><span class="section-chevron">⌄</span><span class="section-icon">✣</span> TRANSFORM <span class="section-menu">···</span></button><div class="section-body" data-section-body="transform">
@@ -181,7 +143,7 @@ function renderProjectMeta(): void {
 function newProject(): void {
   const name = window.prompt('Name your project', 'Untitled Project');
   if (name === null) return;
-  project = createProject(name.trim() || 'Untitled Project'); selectedId = project.scenes[0].objects[1]?.id ?? null;
+  project = createProject(name.trim() || 'Untitled Project'); selectedId = project.scenes[0].objects[1]?.id ?? null; selectedIds = selectedId ? [selectedId] : [];
   history.clear(); renderProjectMeta(); renderPanels(); void saveProject(true); showToast('New project created');
 }
 async function openProject(): Promise<void> {
@@ -201,7 +163,7 @@ async function openProject(): Promise<void> {
   } catch (error) { showToast(error instanceof Error ? error.message : 'Could not open projects', true); }
 }
 function setProject(value: StudioProject): void {
-  project = validateProject(value); selectedId = scene().objects[0]?.id ?? null; history.clear();
+  project = validateProject(value); selectedId = scene().objects[0]?.id ?? null; selectedIds = selectedId ? [selectedId] : []; history.clear();
   renderProjectMeta(); renderPanels(); showToast(`Opened ${project.name}`);
 }
 function downloadProject(): void {
@@ -254,7 +216,22 @@ outliner.addEventListener('click', (event) => {
   const target = event.target as HTMLElement;
   if (target.closest('[data-action]')) return;
   const row = target.closest<HTMLElement>('[data-id]'); if (!row) return;
-  selectedId = row.dataset.id!; renderPanels();
+  const id = row.dataset.id!;
+  const objects = scene().objects;
+  if (event.shiftKey && lastOutlinerSelectionId) {
+    const anchor = objects.findIndex((obj) => obj.id === lastOutlinerSelectionId);
+    const current = objects.findIndex((obj) => obj.id === id);
+    if (anchor >= 0 && current >= 0) {
+      const start = Math.min(anchor, current);
+      const end = Math.max(anchor, current);
+      selectedIds = objects.slice(start, end + 1).map((obj) => obj.id);
+    } else selectedIds = [id];
+  } else if (event.ctrlKey || event.metaKey) {
+    selectedIds = selectedIds.includes(id) ? selectedIds.filter((item) => item !== id) : [...selectedIds, id];
+  } else selectedIds = [id];
+  selectedId = selectedIds.at(-1) ?? null;
+  lastOutlinerSelectionId = id;
+  renderPanels();
 });
 outliner.addEventListener('dblclick', (event) => {
   const target = event.target as HTMLElement; const row = target.closest<HTMLElement>('[data-id]'); if (!row || target.closest('button')) return;

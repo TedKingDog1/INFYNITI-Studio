@@ -13,11 +13,10 @@ The repository is an early TypeScript + Vite 8 + Three.js prototype. src/main.ts
 Current implemented capabilities include primitive blockout creation, basic single-object selection/transforms, a basic Inspector, visibility/lock controls, duplication/deletion, JSON import/export, local IndexedDB persistence, and last-project recovery.
 
 Important gaps:
-- The Outliner is flat; the existing parentId field is not yet a complete scene graph.
-- There is no multi-selection or group editing.
+- The Outliner supports Ctrl/Meta-click and Shift-range multi-selection, and deleting a selection is undoable. It is still flat; the existing parentId field is not yet a complete scene graph, and group editing is not implemented.
 - The Inspector is currently hard-coded around the primitive object type.
-- The application entry point owns too much UI and behavior.
-- There is no workspace/module system, asset registry, Blueprint graph model/editor, UI Designer, game runtime, or integrated debugger.
+- The Level Editor controller and interaction wiring still live largely in `src/main.ts`; static application-shell markup has been extracted to `src/ide/app-shell.ts`, and the shared service composition lives in `src/ide/application.ts`.
+- The workspace registry, shared editor context, command bus, and serializable project contracts are now present. The Blueprint graph canvas/execution, asset import pipeline, UI Designer, playable runtime, and debugger are not yet implemented.
 - The visible top-left header branding has been corrected to INFYNITI; the legacy IndexedDB database identifier remains intentionally unchanged for local-data compatibility.
 - The IndexedDB database name is a legacy internal identifier. Keep it unchanged until a deliberate data migration is implemented, so existing local projects are not stranded.
 
@@ -47,10 +46,10 @@ Target layers:
 ### Sprint 1 — IDE shell and editor foundation
 - Extract application composition from main.ts into a small bootstrap.
 - Establish workspace registration/navigation and reusable panel/layout contracts.
-- Formalize project/document, editor-context, command, asset-reference, and component contracts.
+- Formalize project/document, editor-context, command, asset-reference, Blueprint graph, UI document, and runtime-session contracts.
 - Make the Level Editor the first registered workspace.
 - Improve scene hierarchy, grouping, multi-selection, and Inspector using the shared contracts.
-- Ensure save/recovery and undo/redo cover supported editor operations.
+- Ensure save/recovery and undo/redo cover supported editor operations, including atomic multi-command operations.
 - Preserve version-1 projects with explicit validation/migration tests.
 
 ### Sprint 2 — Level and environment authoring
@@ -80,6 +79,15 @@ Target layers:
 - Add project validation, build profiles, browser-game packaging, and deployment/export.
 - Optimize loading, memory use, rendering, and large-project responsiveness.
 - Add diagnostics, recovery, documentation, and regression coverage.
+
+### Sprint 1 foundation delivered in this branch
+
+- Added `StudioApplication` as the composition root for workspace registration, shared editor context, and shared command routing.
+- Added `CommandBus` with stable command IDs, registration/dispatch, bounded undo/redo history, and atomic command batches.
+- Extended the v1 project document with optional settings, asset references, Blueprint graph documents, and UI documents. Validation supplies defaults for older v1 files, preserving compatibility with existing locally stored projects.
+- Added runtime-session interfaces that enforce a project-snapshot boundary; this is a contract only, not a playable runtime.
+- The current Level Editor remains the only mounted workspace. Its view/controller code is still largely in `src/main.ts`; extracting the complete Level Editor view and finishing hierarchy/multi-selection are follow-up tasks, not claimed as complete.
+- The Blueprint graph data model exists, but the visual graph canvas, graph execution, asset import pipeline, UI Designer, and runtime implementation remain unbuilt. The Level Editor now has Outliner multi-selection, but multi-object transform editing and grouping remain future work.
 
 ## Engineering workflow
 
