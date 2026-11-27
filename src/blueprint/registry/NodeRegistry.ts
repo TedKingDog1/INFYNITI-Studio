@@ -3,6 +3,7 @@ export interface BlueprintPinDefinition {
   direction: 'input' | 'output';
   dataType: string;
   required?: boolean;
+  defaultValue?: string | number | boolean | null;
 }
 
 export interface BlueprintNodeDefinition {

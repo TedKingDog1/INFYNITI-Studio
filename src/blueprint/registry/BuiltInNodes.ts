@@ -13,7 +13,7 @@ builtInNodeRegistry.register({
   description: 'Chooses a path using a Boolean condition.',
   pins: [
     { name: 'Execute', direction: 'input', dataType: 'exec' },
-    { name: 'Condition', direction: 'input', dataType: 'boolean', required: true },
+    { name: 'Condition', direction: 'input', dataType: 'boolean', required: true, defaultValue: false },
     { name: 'True', direction: 'output', dataType: 'exec' },
     { name: 'False', direction: 'output', dataType: 'exec' },
   ],
@@ -24,7 +24,7 @@ builtInNodeRegistry.register({
   description: 'Writes a message to the runtime debug log.',
   pins: [
     { name: 'Execute', direction: 'input', dataType: 'exec' },
-    { name: 'Value', direction: 'input', dataType: 'string' },
+    { name: 'Value', direction: 'input', dataType: 'string', defaultValue: 'Hello from INFYNITI' },
     { name: 'Then', direction: 'output', dataType: 'exec' },
   ],
   defaultProperties: { message: 'Hello from INFYNITI' },
@@ -53,8 +53,8 @@ for (const [type, title, operation] of [
     type, title, category: 'MATH',
     description: 'Performs a floating-point arithmetic operation.',
     pins: [
-      { name: 'A', direction: 'input', dataType: 'float', required: true },
-      { name: 'B', direction: 'input', dataType: 'float', required: true },
+      { name: 'A', direction: 'input', dataType: 'float', required: true, defaultValue: 0 },
+      { name: 'B', direction: 'input', dataType: 'float', required: true, defaultValue: 0 },
       { name: 'Result', direction: 'output', dataType: 'float' },
     ],
     operation,
@@ -74,8 +74,8 @@ builtInNodeRegistry.register({
   type: 'logic.and', title: 'Boolean AND', category: 'LOGIC',
   description: 'Returns true only when both inputs are true.',
   pins: [
-    { name: 'A', direction: 'input', dataType: 'boolean', required: true },
-    { name: 'B', direction: 'input', dataType: 'boolean', required: true },
+    { name: 'A', direction: 'input', dataType: 'boolean', required: true, defaultValue: false },
+    { name: 'B', direction: 'input', dataType: 'boolean', required: true, defaultValue: false },
     { name: 'Result', direction: 'output', dataType: 'boolean' },
   ],
   operation: 'logic.and',
@@ -84,7 +84,7 @@ builtInNodeRegistry.register({
   type: 'logic.not', title: 'Boolean NOT', category: 'LOGIC',
   description: 'Inverts a Boolean value.',
   pins: [
-    { name: 'Value', direction: 'input', dataType: 'boolean', required: true },
+    { name: 'Value', direction: 'input', dataType: 'boolean', required: true, defaultValue: false },
     { name: 'Result', direction: 'output', dataType: 'boolean' },
   ],
   operation: 'logic.not',

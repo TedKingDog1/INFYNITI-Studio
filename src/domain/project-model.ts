@@ -17,6 +17,7 @@ export interface BlueprintPin {
   name: string;
   direction: 'input' | 'output';
   dataType: string;
+  defaultValue?: JsonValue;
 }
 
 export interface BlueprintNode {
