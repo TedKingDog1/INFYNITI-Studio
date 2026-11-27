@@ -4,7 +4,6 @@ import type { BlueprintGraph, BlueprintNode, BlueprintPin } from '../../domain/p
 import type { LevelEditorBridge } from '../level/LevelEditorWorkspace';
 import { builtInNodeRegistry } from '../../blueprint/registry/BuiltInNodes';
 
-const defs = builtInNodeRegistry.getAll();
 const esc=(s:string)=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 export function mountBlueprintWorkspace(app:HTMLDivElement, level:LevelEditorBridge):void {
  app.insertAdjacentHTML('beforeend', `
