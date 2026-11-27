@@ -64,8 +64,8 @@ builtInNodeRegistry.register({
   type: 'math.greater-than', title: 'Greater Than', category: 'MATH',
   description: 'Returns true when A is greater than B.',
   pins: [
-    { name: 'A', direction: 'input', dataType: 'float', required: true },
-    { name: 'B', direction: 'input', dataType: 'float', required: true },
+    { name: 'A', direction: 'input', dataType: 'float', required: true, defaultValue: 0 },
+    { name: 'B', direction: 'input', dataType: 'float', required: true, defaultValue: 0 },
     { name: 'Result', direction: 'output', dataType: 'boolean' },
   ],
   operation: 'math.greater-than',
