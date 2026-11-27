@@ -7,7 +7,7 @@ import { Viewport } from './editor/viewport';
 const app = document.querySelector<HTMLDivElement>('#app')!;
 app.innerHTML = `
   <header class="topbar">
-    <a class="brand" href="#" aria-label="INFYNITI Studio home"><span class="brand-mark">B</span><span>BLACKSITE <b>STUDIO</b></span></a>
+    <a class="brand" href="#" aria-label="INFYNITI Studio home"><span class="brand-mark">I</span><span>BLACKSITE <b>STUDIO</b></span></a>
     <span class="top-divider"></span>
     <div class="file-actions"><button class="icon-button" data-action="new" title="New project">＋ <span>New</span></button><button class="icon-button" data-action="open" title="Open project">▱ <span>Open</span></button><button class="icon-button" data-action="save" title="Save project">▣ <span>Save</span></button></div>
     <span class="top-divider"></span>
