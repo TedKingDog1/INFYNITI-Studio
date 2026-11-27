@@ -1,26 +1,32 @@
-# Blacksite Studio
+# INFYNITI Studio
 
-Browser-based 3D FPS environment editor by Infyniti Interactive. This repository currently contains the Milestone 1 editor foundation.
+Browser-based 3D game-development editor by Infyniti Interactive. The current application is an early editor foundation built with TypeScript, Vite, and Three.js.
 
-## Run locally
+## Run in the browser
 
-Install a current Node.js LTS release, then run:
+Use a current Node.js LTS release:
 
 ```sh
 npm install
 npm run dev
 ```
 
-Run `npm run typecheck` for TypeScript validation and `npm run build` for a production build.
+Validation commands:
 
-## Milestone 1 functionality
+```sh
+npm run typecheck
+npm run build
+```
 
-- Three.js scene viewport with perspective and orthographic views, orbit/pan/zoom navigation, grid, axes, selection, focus, and move/rotate/scale gizmos.
-- Primitive creation for boxes, spheres, cylinders, and planes; editable scene objects appear in the outliner and inspector.
-- Transform, visibility, lock, rename, duplicate, and delete operations with centralized undo/redo history.
-- Grid snapping controls and draggable panel dividers.
-- Versioned JSON project format, IndexedDB local project storage, project open/save, and JSON import/export.
-- A blockout scene is provided when a new project is created.
+## Current foundation
+
+- Three.js scene viewport with perspective and orthographic cameras, orbit navigation, grid, axes, raycast selection, and move/rotate/scale gizmos.
+- Primitive blockout creation, object inspection, transform editing, visibility and lock controls, duplication, and deletion.
+- Centralized undo/redo command history with a 200-command limit.
+- IndexedDB local project storage, JSON import/export, and Ctrl/Cmd+S.
+- Last-active-project recovery on startup.
+- Dark editor layout with resizable Outliner, viewport/asset area, and Inspector panels.
+- New projects use the `infyniti-project` format. Existing `blacksite-project` version 1 files remain importable for compatibility.
 
 ## Shortcuts
 
@@ -28,10 +34,11 @@ Run `npm run typecheck` for TypeScript validation and `npm run build` for a prod
 - `F`: focus selection
 - `D`: duplicate selection
 - `Delete` / `Backspace`: delete selection
+- `Ctrl/Cmd+S`: save
 - `Ctrl/Cmd+Z`, `Ctrl/Cmd+Shift+Z`, `Ctrl/Cmd+Y`: undo / redo
 
-## Current limitations
+## Not implemented yet
 
-The play controls are intentionally disabled until the runtime and play-in-editor milestones. GLB importing, terrain, material editing, physics, FPS gameplay, and standalone game export are also later milestones. The Milestone 1 implementation has not yet been built or exercised in a browser because Node.js, npm, and a browser executable were unavailable in the authoring environment.
+The current build is still an editor foundation. Full hierarchy/group editing, multi-object transforms, GLB asset importing, terrain tools, PBR material authoring, physics, FPS runtime, Play-in-Editor, and standalone game export remain planned work. The Play control remains disabled until the runtime milestone is implemented.
 
-See [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) for the repository audit, architecture decisions, milestone scope, and verification notes.
+Build and browser verification must be run in the development environment before treating this branch as stable.
