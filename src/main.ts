@@ -3,6 +3,8 @@ import { CommandHistory } from './core/history';
 import { createId, createObject, createProject, validateProject, type PrimitiveKind, type SceneObject, type StudioProject } from './core/types';
 import { IndexedDbProjectStorage } from './core/storage';
 import { Viewport } from './editor/viewport';
+import { EditorContext } from './ide/editor-context';
+import { WorkspaceRegistry } from './ide/workspaces';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 app.innerHTML = `
@@ -19,7 +21,7 @@ app.innerHTML = `
     <button class="play-button" disabled title="Play mode arrives in Milestone 4">▶ <span>Play</span></button>
     <button class="icon-button settings-button" data-action="settings" title="Project settings">⚙</button>
   </header>
-  <div class="projectbar"><div><span class="crumb">PROJECT</span><span id="project-name">Untitled Project</span><span class="save-dot" id="save-state">●</span></div><div class="scene-crumb"><span class="crumb">SCENE</span><span id="scene-name">Main Scene</span><span class="scene-dot"></span></div><div class="projectbar-right"><button class="project-export" data-action="export">EXPORT JSON</button> LOCAL PROJECT <span class="sync-icon">◈</span></div></div>
+  <div class="projectbar"><div><span class="crumb">PROJECT</span><span id="project-name">Untitled Project</span><span class="save-dot" id="save-state">●</span></div><div class="scene-crumb"><span class="crumb">SCENE</span><span id="scene-name">Main Scene</span><span class="scene-dot"></span></div><div class="workspace-crumb"><span class="crumb">WORKSPACE</span><span id="workspace-name">Level Editor</span></div><div class="projectbar-right"><button class="project-export" data-action="export">EXPORT JSON</button> LOCAL PROJECT <span class="sync-icon">◈</span></div></div>
   <main class="workspace">
     <aside class="panel outliner-panel">
       <div class="panel-title"><div><span class="panel-glyph">☷</span> WORLD OUTLINER</div><button class="subtle-button" data-action="add-menu" title="Add object">＋</button></div>
@@ -54,10 +56,14 @@ app.innerHTML = `
   <div id="toast" class="toast" role="status"></div>
 `;
 
+const workspaceRegistry = new WorkspaceRegistry();
+workspaceRegistry.register({ id: 'level-editor', label: 'Level Editor', description: 'Author and organize 3D scenes.' });
+const activeWorkspace = workspaceRegistry.get('level-editor')!;
 const storage = new IndexedDbProjectStorage();
 const history = new CommandHistory();
 let project = createProject();
 let selectedId: string | null = project.scenes[0].objects[1]?.id ?? null;
+const editorContext = new EditorContext({ activeWorkspaceId: activeWorkspace.id, activeSceneId: project.activeSceneId, selectedObjectIds: selectedId ? [selectedId] : [] });
 let activeTool: 'translate' | 'rotate' | 'scale' = 'translate';
 let gridVisible = true;
 let autoSaveTimer = 0;
@@ -119,7 +125,10 @@ function duplicateSelected(): void {
   markChanged(); renderPanels();
 }
 function paintViewport(): void { viewport.sync(scene().objects); }
-function renderPanels(): void { paintViewport(); renderOutliner(); renderInspector(); }
+function renderPanels(): void {
+  editorContext.update({ activeWorkspaceId: activeWorkspace.id, activeSceneId: project.activeSceneId, selectedObjectIds: selectedId ? [selectedId] : [] });
+  paintViewport(); renderOutliner(); renderInspector();
+}
 function renderOutliner(): void {
   const objects = scene().objects;
   const icon: Record<PrimitiveKind, string> = { box: '◇', sphere: '◉', cylinder: '⬭', plane: '▱' };
@@ -166,6 +175,8 @@ async function saveProject(quiet = false): Promise<void> {
 function renderProjectMeta(): void {
   document.querySelector('#project-name')!.textContent = project.name;
   document.querySelector('#scene-name')!.textContent = scene().name;
+  document.querySelector('#workspace-name')!.textContent = activeWorkspace.label;
+  app.dataset.activeWorkspace = activeWorkspace.id;
 }
 function newProject(): void {
   const name = window.prompt('Name your project', 'Untitled Project');
