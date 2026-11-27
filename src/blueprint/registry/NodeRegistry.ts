@@ -2,6 +2,7 @@ export interface BlueprintPinDefinition {
   name: string;
   direction: 'input' | 'output';
   dataType: string;
+  required?: boolean;
 }
 
 export interface BlueprintNodeDefinition {
@@ -11,6 +12,7 @@ export interface BlueprintNodeDefinition {
   description: string;
   pins: readonly BlueprintPinDefinition[];
   defaultProperties?: Record<string, string | number | boolean | null>;
+  operation?: string;
 }
 
 /** Central catalogue for node types available to the Blueprint editor. */
