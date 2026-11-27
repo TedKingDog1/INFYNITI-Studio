@@ -9,7 +9,7 @@ export interface BlueprintValidationIssue {
 
 export function validateBlueprintGraph(graph: BlueprintGraph, registry: NodeRegistry): BlueprintValidationIssue[] {
   const issues: BlueprintValidationIssue[] = [];
-  const nodes = new Map(graph.nodes.map((node) => [node.id, node]));
+  const nodes = new Map(graph.nodes.map((node) => [node.id, node] as const));
   const pins = new Map(graph.nodes.flatMap((node) => node.pins.map((pin) => [pin.id, { node, pin }] as const)));
   const incoming = new Set<string>();
   const seenLinks = new Set<string>();
