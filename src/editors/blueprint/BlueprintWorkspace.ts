@@ -1,5 +1,5 @@
 import './blueprint.css';
-import { createId, type StudioProject } from '../../core/types';
+import { createId } from '../../core/types';
 import type { BlueprintGraph, BlueprintNode, BlueprintPin } from '../../domain/project-model';
 import type { LevelEditorBridge } from '../level/LevelEditorWorkspace';
 
