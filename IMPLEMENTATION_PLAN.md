@@ -18,7 +18,7 @@ Important gaps:
 - The Inspector is currently hard-coded around the primitive object type.
 - The application entry point owns too much UI and behavior.
 - There is no workspace/module system, asset registry, Blueprint graph model/editor, UI Designer, game runtime, or integrated debugger.
-- The visible brand in the top-left header still contains a legacy BLACKSITE label.
+- The visible top-left header branding has been corrected to INFYNITI; the legacy IndexedDB database identifier remains intentionally unchanged for local-data compatibility.
 - The IndexedDB database name is a legacy internal identifier. Keep it unchanged until a deliberate data migration is implemented, so existing local projects are not stranded.
 
 ## Architecture
