@@ -5,6 +5,7 @@ export interface Command {
 }
 
 export class CommandHistory {
+  private readonly maxEntries = 200;
   private undoStack: Command[] = [];
   private redoStack: Command[] = [];
   private listeners = new Set<() => void>();
@@ -12,12 +13,14 @@ export class CommandHistory {
   execute(command: Command): void {
     command.execute();
     this.undoStack.push(command);
+    if (this.undoStack.length > this.maxEntries) this.undoStack.shift();
     this.redoStack = [];
     this.emit();
   }
 
   recordExecuted(command: Command): void {
     this.undoStack.push(command);
+    if (this.undoStack.length > this.maxEntries) this.undoStack.shift();
     this.redoStack = [];
     this.emit();
   }
@@ -35,6 +38,7 @@ export class CommandHistory {
     if (!command) return;
     command.execute();
     this.undoStack.push(command);
+    if (this.undoStack.length > this.maxEntries) this.undoStack.shift();
     this.emit();
   }
 
