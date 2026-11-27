@@ -1,27 +1,62 @@
-# Blacksite Studio — implementation plan
+# INFYNITI Studio — implementation plan
 
 ## Repository audit
 
-The repository contains no application source, package manifest, documentation, or prior commits. There is no existing functionality to preserve. The working tree is clean. Node.js, npm, TypeScript, Vite, and a browser executable are not available in the current environment, so builds and browser interaction checks cannot run here.
+The repository is a small TypeScript + Vite + Three.js editor prototype. Its source is concentrated in `src/main.ts`, with scene types, command history, IndexedDB storage, and the Three.js viewport separated into `src/core` and `src/editor`.
 
-## Architecture findings
+The original prototype had a flat Outliner despite carrying a `parentId` field, basic single-object selection and transforms, limited undo/redo, and no last-project recovery. The Play control is intentionally disabled. The project has not yet been built or exercised in a browser in the authoring environment; local build verification is still required.
 
-- Start from a modular TypeScript/Vite application with Three.js as the only runtime dependency for Milestone 1.
-- Keep serializable scene definitions separate from Three.js objects and the editor UI.
-- Put scene changes behind commands so undo and redo are consistent across viewport, outliner, and inspector.
-- Persist project JSON through an asynchronous storage interface; use IndexedDB locally and leave cloud providers independent.
-- Treat a runtime/game layer, Rapier physics, asset importing, terrain, and export as later milestones.
+## Architecture decisions
 
-## Milestone 1 plan
+- Keep serializable project and scene definitions independent from Three.js runtime objects and editor UI.
+- Keep scene mutations behind commands so undo and redo can be shared by the viewport, Outliner, and Inspector.
+- Persist projects through an asynchronous storage interface. IndexedDB is the local provider; cloud providers will be added behind the same abstraction.
+- Use Three.js for rendering and GLB/glTF asset loading. Add Rapier when the physics/runtime sprint begins, not before it is needed.
+- Keep editor state separate from game runtime state. Play-in-Editor must execute the same serialized scene authored by the editor.
+- Prefer focused modules over expanding the main entry point into a monolith.
 
-1. Establish the Vite/TypeScript app shell and a restrained dark editor layout.
-2. Add typed, versioned project/scene/object data and IndexedDB project storage.
-3. Add a command/history layer for add, delete, rename, transform, visibility, and duplication operations.
-4. Build a Three.js viewport with perspective/orthographic cameras, grid/axes, orbit navigation, raycast selection, and transform gizmos.
-5. Connect toolbar actions, hierarchical outliner, and inspector to shared scene state.
-6. Add new/open/save, JSON import/export, and essential keyboard shortcuts.
-7. Review implementation statically. Run type checks, build, tests, and browser checks when a Node/browser toolchain is available.
+## Sprint sequence
 
-## Milestone 1 scope and limitations
+### Sprint 1 — Editor foundation
+- Complete scene hierarchy and grouping.
+- Multi-object selection and manipulation.
+- Component-oriented Inspector foundation.
+- Reliable command history and project recovery/autosave.
+- Consistent INFYNITI branding and production-quality editor layout.
 
-This milestone covers the editor foundation only. Environment assets, GLB import, terrain, materials authoring, physics, FPS runtime, play mode, and standalone export remain out of scope. The viewport starts with a small editable blockout scene to make selection and transforms immediately usable.
+### Sprint 2 — Environment Studio
+- GLB/glTF importing and asset management.
+- Drag-and-drop placement.
+- PBR materials.
+- Terrain creation, sculpting, painting, and foliage.
+- Lighting, atmosphere, sky, and environment settings.
+
+### Sprint 3 — Game runtime foundation
+- Rapier physics integration.
+- FPS controller, collision, and interaction.
+- Spawn points and player configuration.
+- Reusable gameplay components and runtime settings.
+
+### Sprint 4 — Play-in-Editor
+- Runtime execution inside the editor viewport.
+- Play, pause, resume, and stop.
+- Runtime/editor state separation and input routing.
+- Runtime inspection and debugging foundations.
+
+### Sprint 5 — Gameplay systems
+- Weapons, inventory, AI, objectives, audio, animation, and vehicle foundations.
+
+### Sprint 6 — Production and export
+- Standalone web-game export.
+- Packaging, performance optimization, error handling, and documentation.
+
+## Verification policy
+
+For each sprint:
+1. Inspect the existing implementation before changing it.
+2. Implement a cohesive feature set without placeholder controls.
+3. Run TypeScript checks and a production build.
+4. Test the relevant workflows in a browser.
+5. Fix observed failures before marking the sprint stable.
+
+The current authoring environment cannot run the user's Cloud Shell project, so verification must be completed there before merging this sprint branch.
