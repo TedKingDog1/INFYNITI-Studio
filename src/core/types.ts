@@ -21,7 +21,7 @@ export interface SceneDefinition {
 }
 
 export interface StudioProject {
-  format: 'blacksite-project';
+  format: 'infyniti-project' | 'blacksite-project';
   version: 1;
   id: string;
   name: string;
@@ -56,17 +56,17 @@ export function createProject(name = 'Untitled Project'): StudioProject {
   block2.scale = [1.4, 1, 2];
   const sceneId = createId();
   return {
-    format: 'blacksite-project', version: 1, id: createId(), name, updatedAt: new Date().toISOString(),
+    format: 'infyniti-project', version: 1, id: createId(), name, updatedAt: new Date().toISOString(),
     activeSceneId: sceneId,
     scenes: [{ id: sceneId, name: 'Main Scene', objects: [floor, block, block2] }],
   };
 }
 
 export function validateProject(value: unknown): StudioProject {
-  if (!value || typeof value !== 'object') throw new Error('This file is not a Blacksite project.');
+  if (!value || typeof value !== 'object') throw new Error('This file is not an INFYNITI Studio project.');
   const project = value as Partial<StudioProject>;
-  if (project.format !== 'blacksite-project' || project.version !== 1 || !Array.isArray(project.scenes)) {
-    throw new Error('Unsupported project format or version.');
+  if ((project.format !== 'infyniti-project' && project.format !== 'blacksite-project') || project.version !== 1 || !Array.isArray(project.scenes)) {
+    throw new Error('Unsupported INFYNITI project format or version.');
   }
   for (const scene of project.scenes) {
     if (!scene || typeof scene.id !== 'string' || !Array.isArray(scene.objects)) throw new Error('The project contains an invalid scene.');
