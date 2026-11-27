@@ -7,7 +7,7 @@ import { Viewport } from './editor/viewport';
 const app = document.querySelector<HTMLDivElement>('#app')!;
 app.innerHTML = `
   <header class="topbar">
-    <a class="brand" href="#" aria-label="Blacksite Studio home"><span class="brand-mark">B</span><span>BLACKSITE <b>STUDIO</b></span></a>
+    <a class="brand" href="#" aria-label="INFYNITI Studio home"><span class="brand-mark">B</span><span>BLACKSITE <b>STUDIO</b></span></a>
     <span class="top-divider"></span>
     <div class="file-actions"><button class="icon-button" data-action="new" title="New project">＋ <span>New</span></button><button class="icon-button" data-action="open" title="Open project">▱ <span>Open</span></button><button class="icon-button" data-action="save" title="Save project">▣ <span>Save</span></button></div>
     <span class="top-divider"></span>
@@ -49,7 +49,7 @@ app.innerHTML = `
       <div id="inspector" class="inspector-content"></div>
     </aside>
   </main>
-  <footer class="statusbar"><div><span class="status-dot"></span><span>READY</span><span class="status-divider">|</span><span id="status-message">All changes saved locally</span></div><div><span>BLACKSITE STUDIO <b>1.0.0</b></span><span class="status-divider">|</span><span>WEBGL</span><span class="status-divider">|</span><span id="viewport-size">— × —</span></div></footer>
+  <footer class="statusbar"><div><span class="status-dot"></span><span>READY</span><span class="status-divider">|</span><span id="status-message">All changes saved locally</span></div><div><span>INFYNITI STUDIO <b>1.0.0</b></span><span class="status-divider">|</span><span>WEBGL</span><span class="status-divider">|</span><span id="viewport-size">— × —</span></div></footer>
   <input id="project-file" type="file" accept="application/json,.json" hidden>
   <div id="toast" class="toast" role="status"></div>
 `;
@@ -157,6 +157,7 @@ async function saveProject(quiet = false): Promise<void> {
   try {
     project.updatedAt = new Date().toISOString();
     await storage.put(structuredClone(project));
+    try { localStorage.setItem('infyniti-studio:last-project', project.id); } catch { /* Storage may be disabled; IndexedDB remains the source of truth. */ }
     document.querySelector('#save-state')!.classList.remove('dirty');
     document.querySelector('#status-message')!.textContent = 'All changes saved locally';
     if (!quiet) showToast('Project saved to this browser');
@@ -195,7 +196,7 @@ function setProject(value: StudioProject): void {
 function downloadProject(): void {
   const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob); const link = document.createElement('a');
-  link.href = url; link.download = `${project.name.replace(/[^a-z0-9-_]+/gi, '-').toLowerCase() || 'blacksite-project'}.json`;
+  link.href = url; link.download = `${project.name.replace(/[^a-z0-9-_]+/gi, '-').toLowerCase() || 'infyniti-project'}.json`;
   link.click(); URL.revokeObjectURL(url); showToast('Project JSON exported');
 }
 function bindSplitters(): void {
@@ -279,7 +280,8 @@ window.addEventListener('keydown', (event) => {
   const target = event.target as HTMLElement;
   if (target.matches('input,textarea,select') || target.isContentEditable) return;
   const mod = event.ctrlKey || event.metaKey;
-  if (mod && event.key.toLowerCase() === 'z') { event.preventDefault(); if (event.shiftKey) { if (history.canRedo) { history.redo(); markChanged(); } } else if (history.canUndo) { history.undo(); markChanged(); } }
+  if (mod && event.key.toLowerCase() === 's') { event.preventDefault(); void saveProject(); }
+  else if (mod && event.key.toLowerCase() === 'z') { event.preventDefault(); if (event.shiftKey) { if (history.canRedo) { history.redo(); markChanged(); } } else if (history.canUndo) { history.undo(); markChanged(); } }
   else if (mod && event.key.toLowerCase() === 'y') { event.preventDefault(); if (history.canRedo) { history.redo(); markChanged(); } }
   else if (event.key === 'Delete' || event.key === 'Backspace') deleteSelected();
   else if (event.key.toLowerCase() === 'w') { activeTool = 'translate'; viewport.setTransformMode(activeTool); document.querySelectorAll('[data-tool]').forEach((button) => button.classList.toggle('active', (button as HTMLElement).dataset.tool === activeTool)); }
@@ -297,4 +299,21 @@ document.querySelector<HTMLButtonElement>('[data-action="undo"]')!.disabled = tr
 document.querySelector<HTMLButtonElement>('[data-action="redo"]')!.disabled = true;
 const resizeReadout = () => { document.querySelector('#viewport-size')!.textContent = `${viewportHost.clientWidth} × ${viewportHost.clientHeight}`; };
 new ResizeObserver(resizeReadout).observe(viewportHost); resizeReadout();
-void storage.put(project).catch(() => { document.querySelector('#status-message')!.textContent = 'Local storage unavailable'; });
+void (async () => {
+  try {
+    let lastProjectId: string | null = null;
+    try { lastProjectId = localStorage.getItem('infyniti-studio:last-project'); } catch { /* Continue with a fresh project. */ }
+    const recovered = lastProjectId ? await storage.get(lastProjectId) : undefined;
+    if (recovered) {
+      setProject(validateProject(recovered));
+      document.querySelector('#status-message')!.textContent = 'Recovered last project from this browser';
+      document.querySelector('#save-state')!.classList.remove('dirty');
+    } else {
+      await saveProject(true);
+      document.querySelector('#status-message')!.textContent = 'New project ready · saved locally';
+    }
+  } catch (error) {
+    document.querySelector('#status-message')!.textContent = 'Local project storage unavailable';
+    showToast(error instanceof Error ? error.message : 'Could not initialize project storage', true);
+  }
+})();
