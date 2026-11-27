@@ -11,7 +11,7 @@ const defs = [
 ];
 const esc=(s:string)=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 export function mountBlueprintWorkspace(app:HTMLDivElement, level:LevelEditorBridge):void {
- app.insertAdjacentHTML('beforeend', \`
+ app.insertAdjacentHTML('beforeend', `
  <section id="blueprint-workspace" class="blueprint-workspace" hidden>
  <header class="bp-toolbar"><div><b>◇ &nbsp; BP_GameLogic</b><small>EVENT GRAPH</small></div><div><button data-bp="fit">FIT GRAPH</button><button data-bp="save">SAVE GRAPH</button><span id="bp-save-state">SAVED</span></div></header>
  <div class="bp-main"><aside class="bp-left"><h4>MY BLUEPRINT</h4><p>GRAPHS</p><div class="bp-tree-item">⌘ &nbsp; Event Graph</div><p>VARIABLES</p><small>No variables yet</small><p>FUNCTIONS</p><small>No functions yet</small></aside>
@@ -19,7 +19,7 @@ export function mountBlueprintWorkspace(app:HTMLDivElement, level:LevelEditorBri
  <div id="bp-canvas" class="bp-canvas" tabindex="0"><div id="bp-world" class="bp-world"><svg id="bp-wires" width="4000" height="3000"></svg><div id="bp-nodes"></div></div>
  <div id="bp-menu" class="bp-menu" hidden><input id="bp-search" placeholder="Search nodes..." /><div id="bp-results"></div></div><div id="bp-hint" class="bp-hint" hidden>Choose a compatible input pin · Esc to cancel</div><div class="bp-zoom"><button data-bp="out">−</button><span id="bp-zoom-label">100%</span><button data-bp="in">＋</button></div></div>
  <div class="bp-diagnostics">COMPILER　 <span>Graph authoring ready · execution/compiler not implemented yet</span></div></section>
- <aside class="bp-right"><h4>DETAILS</h4><div id="bp-inspector">Select a node to inspect its properties.</div></aside></div></section>\`);
+ <aside class="bp-right"><h4>DETAILS</h4><div id="bp-inspector">Select a node to inspect its properties.</div></aside></div></section>`);
  const root=app.querySelector<HTMLElement>('#blueprint-workspace')!,canvas=root.querySelector<HTMLElement>('#bp-canvas')!,world=root.querySelector<HTMLElement>('#bp-world')!,nodes=root.querySelector<HTMLElement>('#bp-nodes')!,wires=root.querySelector<SVGSVGElement>('#bp-wires')!,menu=root.querySelector<HTMLElement>('#bp-menu')!,search=root.querySelector<HTMLInputElement>('#bp-search')!,results=root.querySelector<HTMLElement>('#bp-results')!,inspector=root.querySelector<HTMLElement>('#bp-inspector')!,hint=root.querySelector<HTMLElement>('#bp-hint')!;
  let graph:BlueprintGraph|null=null,selected:string|null=null,pending:{node:string;pin:string;dir:string;type:string}|null=null,zoom=1,px=0,py=0,menuX=0,menuY=0;
  let drag:{id:string;x:number;y:number;ox:number;oy:number}|null=null,pan:{x:number;y:number;ox:number;oy:number}|null=null;
