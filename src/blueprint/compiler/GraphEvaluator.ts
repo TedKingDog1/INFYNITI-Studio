@@ -15,7 +15,6 @@ export interface BlueprintEvaluationResult {
 export function evaluateBlueprintGraph(graph: BlueprintGraph, registry: NodeRegistry): BlueprintEvaluationResult {
   const values: Record<string, BlueprintRuntimeValue> = {};
   const issues: string[] = [];
-  const nodes = new Map(graph.nodes.map((node) => [node.id, node] as const));
   const pins = new Map<string, { node: BlueprintNode; pin: BlueprintPin }>();
   const incoming = new Map<string, string>();
 
