@@ -53,9 +53,9 @@ Owns browser-specific services such as IndexedDB, file import/export, workers, a
 
 ## Key contracts
 
-- **Project document:** versioned, validated, serializable root for all project content. The current v1 document now reserves typed collections for assets, Blueprint graphs, UI documents, and project settings; absent collections are defaulted during validation so older v1 files remain loadable.
+- **Project document:** versioned, validated, serializable root for all project content. JSON-safe domain type definitions exist for assets, Blueprint graphs, UI documents, and project settings, but those collections are not yet integrated into the current `StudioProject` schema or persistence.
 - **Editor context:** selected workspace, active document/scene, selection, tool state, and panel state. This is not game state.
-- **Command bus/history:** mutations are explicit commands with execute/undo behavior, so menu actions, inspectors, graphs, and viewport edits share undo/redo. `CommandBus` provides stable-ID command registration/dispatch and atomic batches on top of bounded history.
+- **Command bus/history:** mutations are explicit commands with execute/undo behavior, so menu actions, inspectors, graphs, and viewport edits share undo/redo. `CommandBus` provides stable-ID command registration/dispatch on top of bounded history. Atomic batch operations are not yet implemented.
 - **Asset registry:** stable asset IDs and metadata; scenes and graphs reference IDs rather than embedding transient loaded objects.
 - **Component registry:** typed component definitions with defaults, validation, inspector metadata, and runtime adapters.
 - **Visual graph definition:** serializable nodes, pins, links, variables, and graph metadata. Graphs are validated and compiled/interpreted by a separate runtime service; the canvas is only an authoring UI.
@@ -97,6 +97,6 @@ Avoid circular imports and avoid making main.ts the home of product logic. The a
 
 ## Initial repository reality
 
-The current repository is an early TypeScript/Vite/Three.js prototype. It has a scene viewport, primitive creation, a flat Outliner, a simple Inspector, command history, IndexedDB project storage, a workspace registry, shared editor context, a shared command bus, and serializable project contracts for assets, Blueprint graphs, and UI documents. Static shell markup is separated from the entry point, while most Level Editor controller logic remains in `src/main.ts`. The actual Blueprint canvas, asset pipeline, UI Designer, and game runtime are still future implementation work.
+The current repository is an early TypeScript/Vite/Three.js prototype. It has a scene viewport, primitive creation, a flat Outliner, a simple Inspector, command history, IndexedDB project storage, a workspace registry, shared editor context, a shared command bus, and serializable project contracts for assets, Blueprint graphs, and UI documents. Static shell markup is separated from the entry point, while most Level Editor controller logic remains in `src/main.ts`. The Level Editor controller is mounted from `src/editors/level/LevelEditorWorkspace.ts`, while `src/main.ts` is a small bootstrap. Blueprint graph domain types exist, but graph persistence, the actual Blueprint canvas, asset pipeline, UI Designer, and game runtime are still future implementation work.
 
 The next engineering work is to establish the IDE/project contracts and modular boundaries while preserving the working prototype. The existing Level Editor becomes the first workspace, not the definition of the whole product.
